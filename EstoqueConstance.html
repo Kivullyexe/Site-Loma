@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Constance - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <img id="logo" src="CONSTANDCE.jpeg">
+    <nav>
+      <a href="EstoqueConstance.html">DASHBOARD</a>
+      <a href="index.html">ESTOQUE / FILTROS</a>
+    </nav>
+  </header>
+  <main>
+    <div style="text-align: center; margin-top: 2rem;">
+      <h2 style="font-weight: 300;">Olá, <span style="font-weight: 700; color: var(--rosa-constance);">Constance!</span></h2>
+    </div>
+    <section class="dashboard" id="dash"></section>
+    <div style="text-align: center; margin-top: 1rem;"><a href="index.html" class="btn-primary">VER ESTOQUE COMPLETO</a></div>
+  </main>
+  <script>
+    function carregar() {
+      const r = JSON.parse(localStorage.getItem("roupas")) || [];
+      const v = r.filter(i => i.status === "Vendido").length;
+      const p = r.filter(i => i.status === "Em Prova").length;
+      document.getElementById("dash").innerHTML = `
+        <div class="stat-card"><h4>Total</h4><span class="stat-number">${r.length}</span></div>
+        <div class="stat-card"><h4>Disponíveis</h4><span class="stat-number" style="color:#2d6a4f">${r.length - v - p}</span></div>
+        <div class="stat-card"><h4>Em Prova</h4><span class="stat-number" style="color:#92400e">${p}</span></div>
+        <div class="stat-card"><h4>Vendidas</h4><span class="stat-number">${v}</span></div>`;
+    }
+    window.onload = carregar;
+  </script>
+</body>
+</html>

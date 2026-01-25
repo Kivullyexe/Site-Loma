@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Estoque - Constance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <img id="logo" src="CONSTANDCE.jpeg">
+    <nav>
+      <a href="EstoqueConstance.html">DASHBOARD</a>
+      <a href="index.html">ESTOQUE / FILTROS</a>
+    </nav>
+  </header>
+
+  <main style="text-align: center;">
+    <button class="btn-primary" style="margin: 20px;" onclick="toggleForm()">+ REGISTRAR NOVA PEÇA</button>
+
+    <div class="container-filtros">
+      <input type="text" id="buscaPeca" class="input-filtro" placeholder="🔍 Buscar peça (ex: Short)" onkeyup="render()">
+      <input type="text" id="buscaFornecedor" class="input-filtro" placeholder="👤 Fornecedora (ex: Eva)" onkeyup="render()">
+    </div>
+
+    <div class="formulario" id="formArea">
+      <h2 id="formTitle" style="color: var(--rosa-constance); margin-bottom: 15px;">Entrada de Estoque</h2>
+      <form id="roupaForm">
+        <label>Foto:</label>
+        <input type="file" id="foto" accept="image/*">
+        
+        <label>O que é? (Tipo):</label>
+        <input type="text" id="descricao" placeholder="Ex: Short, Vestido, Blusa" required>
+        
+        <label>De quem? (Fornecedora):</label>
+        <input type="text" id="fornecedor" placeholder="Ex: Eva, Maria, Brand" required>
+        
+        <label>Status Atual:</label>
+        <select id="status">
+          <option value="Não vendido">Disponível (Não vendido)</option>
+          <option value="Em Prova">Em Prova</option>
+          <option value="Vendido">Vendido</option>
+        </select>
+
+        <button type="button" id="btnSalvar" class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="salvar()">SALVAR NO ACERVO</button>
+        <button type="button" onclick="toggleForm()" style="width: 100%; background: none; border: none; color: #999; margin-top: 10px; cursor: pointer;">Cancelar</button>
+      </form>
+    </div>
+
+    <div class="produtos" id="lista"></div>
+  </main>
+
+  <script>
+    let editIdx = null;
+
+    function toggleForm() {
+      const f = document.getElementById("formArea");
+      f.style.display = (f.style.display === "none" || f.style.display === "") ? "block" : "none";
+      if(f.style.display === "none") { 
+        document.getElementById("roupaForm").reset(); 
+        editIdx = null; 
+        document.getElementById("formTitle").textContent = "Entrada de Estoque";
+      }
+    }
+
+    // Compactador para evitar erro de memória cheia
+    async function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const width = 500;
+            const scale = width / img.width;
+            canvas.width = width; canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.6));
+          };
+        };
+      });
+    }
+
+    async function salvar() {
+      const desc = document.getElementById("descricao").value;
+      const forn = document.getElementById("fornecedor").value;
+      
+      if(!desc || !forn) {
+        alert("Por favor, preencha o tipo da peça e a fornecedora!");
+        return;
+      }
+
+      const btn = document.getElementById("btnSalvar");
+      btn.disabled = true; btn.textContent = "Salvando...";
+
+      const roupas = JSON.parse(localStorage.getItem("roupas")) || [];
+      const fotoFile = document.getElementById("foto").files[0];
+      let fotoFinal = "";
+
+      if(fotoFile) {
+        fotoFinal = await compressImage(fotoFile);
+      } else if(editIdx !== null) {
+        fotoFinal = roupas[editIdx].foto;
+      }
+
+      const item = { 
+        descricao: desc, 
+        fornecedor: forn, 
+        status: document.getElementById("status").value, 
+        foto: fotoFinal 
+      };
+
+      try {
+        if(editIdx !== null) {
+          roupas[editIdx] = item;
+        } else {
+          roupas.push(item);
+        }
+        localStorage.setItem("roupas", JSON.stringify(roupas));
+        toggleForm(); 
+        render();
+      } catch(e) { 
+        alert("Erro de espaço! Tente remover peças vendidas antigas."); 
+      } finally { 
+        btn.disabled = false; btn.textContent = "SALVAR NO ACERVO"; 
+      }
+    }
+
+    function render() {
+      const lista = document.getElementById("lista");
+      const roupas = JSON.parse(localStorage.getItem("roupas")) || [];
+      const buscaP = document.getElementById("buscaPeca").value.toLowerCase();
+      const buscaF = document.getElementById("buscaFornecedor").value.toLowerCase();
+      
+      lista.innerHTML = "";
+
+      roupas.forEach((r, i) => {
+        // Lógica do Filtro: Tipo + Fornecedora
+        if (r.descricao.toLowerCase().includes(buscaP) && r.fornecedor.toLowerCase().includes(buscaF)) {
+          
+          let statusClass = "status-disponivel";
+          if(r.status === "Vendido") statusClass = "status-vendido";
+          if(r.status === "Em Prova") statusClass = "status-prova";
+
+          lista.innerHTML += `
+            <div class="produto">
+              <img src="${r.foto || 'https://via.placeholder.com/400x500?text=Sem+Foto'}">
+              <div class="info">
+                <span class="badge ${statusClass}">${r.status}</span>
+                <h3 style="margin-top:5px; text-transform: capitalize;">${r.descricao}</h3>
+                <p style="font-size:0.85rem; color:#888;">Fornecedora: <strong>${r.fornecedor}</strong></p>
+                
+                <div style="margin-top:12px; display:flex; gap:8px;">
+                  <button onclick="editar(${i})" style="flex:1; border:1px solid var(--rosa-constance); background:none; border-radius:8px; padding:8px; cursor:pointer; font-weight:600; font-size:0.7rem;">EDITAR / STATUS</button>
+                  <button onclick="remover(${i})" style="border:none; background:#eee; border-radius:8px; padding:8px 12px; cursor:pointer;">🗑️</button>
+                </div>
+              </div>
+            </div>`;
+        }
+      });
+    }
+
+    function editar(i) {
+      const r = JSON.parse(localStorage.getItem("roupas"))[i];
+      document.getElementById("descricao").value = r.descricao;
+      document.getElementById("fornecedor").value = r.fornecedor;
+      document.getElementById("status").value = r.status;
+      editIdx = i;
+      document.getElementById("formTitle").textContent = "Alterar Peça";
+      document.getElementById("formArea").style.display = "block";
+      window.scrollTo(0,0);
+    }
+
+    function remover(i) {
+      if(confirm("Deseja realmente excluir esta peça do sistema?")) {
+        const r = JSON.parse(localStorage.getItem("roupas"));
+        r.splice(i, 1);
+        localStorage.setItem("roupas", JSON.stringify(r));
+        render();
+      }
+    }
+
+    window.onload = render;
+  </script>
+</body>
+</html>

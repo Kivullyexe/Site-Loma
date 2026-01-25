@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
+
+:root {
+  --rosa-constance: #ff85a1;
+  --rosa-fundo: #fff5f7;
+  --rosa-escuro: #cc444b;
+  --branco: #ffffff;
+  --sombra: 0 10px 30px rgba(255, 133, 161, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+body { background: var(--rosa-fundo); color: #444; min-height: 100vh; }
+
+header {
+  background: var(--branco); padding: 1.5rem; text-align: center;
+  border-bottom: 2px solid var(--rosa-constance); box-shadow: var(--sombra);
+  position: sticky; top: 0; z-index: 1000;
+}
+
+#logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--rosa-constance); object-fit: cover; }
+
+nav { margin-top: 10px; display: flex; justify-content: center; gap: 20px; }
+nav a { text-decoration: none; color: var(--rosa-escuro); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+
+/* Área de Filtros */
+.container-filtros {
+  max-width: 1200px; margin: 20px auto; padding: 0 20px;
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+}
+
+.input-filtro {
+  padding: 12px; border: 2px solid var(--rosa-constance); border-radius: 25px;
+  outline: none; width: 250px; background: white;
+}
+
+/* Dashboard */
+.dashboard {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px; padding: 20px; max-width: 1000px; margin: 0 auto;
+}
+.stat-card { background: var(--branco); padding: 20px; border-radius: 20px; text-align: center; box-shadow: var(--sombra); }
+.stat-number { font-size: 2rem; font-weight: 700; color: var(--rosa-escuro); display: block; }
+
+/* Botões e Form */
+.btn-primary {
+  background: var(--rosa-constance); color: white; border: none; padding: 12px 25px;
+  border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s; text-decoration: none;
+}
+.btn-primary:hover { background: var(--rosa-escuro); transform: scale(1.05); }
+
+.formulario {
+  background: var(--branco); max-width: 450px; margin: 20px auto; padding: 25px;
+  border-radius: 20px; box-shadow: var(--sombra); display: none; text-align: left;
+}
+input, select { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid #eee; border-radius: 10px; }
+
+/* Cards de Peças */
+.produtos {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto;
+}
+.produto { background: var(--branco); border-radius: 20px; overflow: hidden; box-shadow: var(--sombra); transition: 0.3s; }
+.produto img { width: 100%; height: 350px; object-fit: cover; }
+.info { padding: 15px; text-align: left; }
+.badge { padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
+.status-vendido { background: #fee2e2; color: #cc444b; }
+.status-disponivel { background: #e2fadc; color: #2d6a4f; }
+.status-prova { background: #fef3c7; color: #92400e; }
