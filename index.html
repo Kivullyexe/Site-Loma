@@ -1,188 +1,275 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Estoque - Constance</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque - Constance</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Melhorias específicas de Design para a página de estoque */
+        .filtros-area {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: sticky;
+            top: 80px; /* Logo abaixo do header */
+            z-index: 90;
+            padding: 15px 25px;
+            border-radius: 25px;
+            margin: 20px 0 40px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            align-items: center;
+        }
+
+        .peca-card {
+            border: none;
+            background: #fff;
+            border-radius: 25px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .peca-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(229, 152, 155, 0.15);
+        }
+
+        .peca-image {
+            height: 350px;
+            border-radius: 25px 25px 0 0;
+            transition: 0.5s;
+        }
+
+        .peca-card:hover .peca-image {
+            filter: brightness(0.9);
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .tag-disponivel { background: #e8f5e9; color: #2e7d32; }
+        .tag-prova { background: #fff3e0; color: #ef6c00; }
+        .tag-vendido { background: #f5f5f5; color: #616161; }
+
+        #formArea {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--rosa-constance);
+            padding: 35px;
+            border-radius: 30px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .btn-add-fixo {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--rosa-constance);
+            color: white;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(229, 152, 155, 0.4);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .btn-add-fixo:hover { transform: scale(1.1) rotate(90deg); }
+    </style>
 </head>
 <body>
-  <header>
-    <img id="logo" src="CONSTANDCE.jpeg">
-    <nav>
-      <a href="EstoqueConstance.html">DASHBOARD</a>
-      <a href="index.html">ESTOQUE / FILTROS</a>
-    </nav>
-  </header>
+    <header>
+        <img id="logo" src="CONSTANDCE.jpeg">
+        <nav>
+            <a href="EstoqueConstance.html">DASHBOARD</a>
+            <a href="index.html" style="color: var(--rosa-constance);">ESTOQUE</a>
+        </nav>
+    </header>
 
-  <main style="text-align: center;">
-    <button class="btn-primary" style="margin: 20px;" onclick="toggleForm()">+ REGISTRAR NOVA PEÇA</button>
+    <main class="container">
+        <div class="filtros-area">
+            <input type="text" id="bNome" placeholder="🔍 O que você procura?" onkeyup="render()">
+            <input type="text" id="bForn" placeholder="👤 Fornecedora" onkeyup="render()">
+            <select id="fStatus" onchange="render()">
+                <option value="">Todos os Status</option>
+                <option value="Disponível">Disponível</option>
+                <option value="Em Prova">Em Prova</option>
+                <option value="Vendido">Vendido</option>
+            </select>
+        </div>
 
-    <div class="container-filtros">
-      <input type="text" id="buscaPeca" class="input-filtro" placeholder="🔍 Buscar peça (ex: Short)" onkeyup="render()">
-      <input type="text" id="buscaFornecedor" class="input-filtro" placeholder="👤 Fornecedora (ex: Eva)" onkeyup="render()">
-    </div>
-
-    <div class="formulario" id="formArea">
-      <h2 id="formTitle" style="color: var(--rosa-constance); margin-bottom: 15px;">Entrada de Estoque</h2>
-      <form id="roupaForm">
-        <label>Foto:</label>
-        <input type="file" id="foto" accept="image/*">
-        
-        <label>O que é? (Tipo):</label>
-        <input type="text" id="descricao" placeholder="Ex: Short, Vestido, Blusa" required>
-        
-        <label>De quem? (Fornecedora):</label>
-        <input type="text" id="fornecedor" placeholder="Ex: Eva, Maria, Brand" required>
-        
-        <label>Status Atual:</label>
-        <select id="status">
-          <option value="Não vendido">Disponível (Não vendido)</option>
-          <option value="Em Prova">Em Prova</option>
-          <option value="Vendido">Vendido</option>
-        </select>
-
-        <button type="button" id="btnSalvar" class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="salvar()">SALVAR NO ACERVO</button>
-        <button type="button" onclick="toggleForm()" style="width: 100%; background: none; border: none; color: #999; margin-top: 10px; cursor: pointer;">Cancelar</button>
-      </form>
-    </div>
-
-    <div class="produtos" id="lista"></div>
-  </main>
-
-  <script>
-    let editIdx = null;
-
-    function toggleForm() {
-      const f = document.getElementById("formArea");
-      f.style.display = (f.style.display === "none" || f.style.display === "") ? "block" : "none";
-      if(f.style.display === "none") { 
-        document.getElementById("roupaForm").reset(); 
-        editIdx = null; 
-        document.getElementById("formTitle").textContent = "Entrada de Estoque";
-      }
-    }
-
-    // Compactador para evitar erro de memória cheia
-    async function compressImage(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (e) => {
-          const img = new Image();
-          img.src = e.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const width = 500;
-            const scale = width / img.width;
-            canvas.width = width; canvas.height = img.height * scale;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.6));
-          };
-        };
-      });
-    }
-
-    async function salvar() {
-      const desc = document.getElementById("descricao").value;
-      const forn = document.getElementById("fornecedor").value;
-      
-      if(!desc || !forn) {
-        alert("Por favor, preencha o tipo da peça e a fornecedora!");
-        return;
-      }
-
-      const btn = document.getElementById("btnSalvar");
-      btn.disabled = true; btn.textContent = "Salvando...";
-
-      const roupas = JSON.parse(localStorage.getItem("roupas")) || [];
-      const fotoFile = document.getElementById("foto").files[0];
-      let fotoFinal = "";
-
-      if(fotoFile) {
-        fotoFinal = await compressImage(fotoFile);
-      } else if(editIdx !== null) {
-        fotoFinal = roupas[editIdx].foto;
-      }
-
-      const item = { 
-        descricao: desc, 
-        fornecedor: forn, 
-        status: document.getElementById("status").value, 
-        foto: fotoFinal 
-      };
-
-      try {
-        if(editIdx !== null) {
-          roupas[editIdx] = item;
-        } else {
-          roupas.push(item);
-        }
-        localStorage.setItem("roupas", JSON.stringify(roupas));
-        toggleForm(); 
-        render();
-      } catch(e) { 
-        alert("Erro de espaço! Tente remover peças vendidas antigas."); 
-      } finally { 
-        btn.disabled = false; btn.textContent = "SALVAR NO ACERVO"; 
-      }
-    }
-
-    function render() {
-      const lista = document.getElementById("lista");
-      const roupas = JSON.parse(localStorage.getItem("roupas")) || [];
-      const buscaP = document.getElementById("buscaPeca").value.toLowerCase();
-      const buscaF = document.getElementById("buscaFornecedor").value.toLowerCase();
-      
-      lista.innerHTML = "";
-
-      roupas.forEach((r, i) => {
-        // Lógica do Filtro: Tipo + Fornecedora
-        if (r.descricao.toLowerCase().includes(buscaP) && r.fornecedor.toLowerCase().includes(buscaF)) {
-          
-          let statusClass = "status-disponivel";
-          if(r.status === "Vendido") statusClass = "status-vendido";
-          if(r.status === "Em Prova") statusClass = "status-prova";
-
-          lista.innerHTML += `
-            <div class="produto">
-              <img src="${r.foto || 'https://via.placeholder.com/400x500?text=Sem+Foto'}">
-              <div class="info">
-                <span class="badge ${statusClass}">${r.status}</span>
-                <h3 style="margin-top:5px; text-transform: capitalize;">${r.descricao}</h3>
-                <p style="font-size:0.85rem; color:#888;">Fornecedora: <strong>${r.fornecedor}</strong></p>
-                
-                <div style="margin-top:12px; display:flex; gap:8px;">
-                  <button onclick="editar(${i})" style="flex:1; border:1px solid var(--rosa-constance); background:none; border-radius:8px; padding:8px; cursor:pointer; font-weight:600; font-size:0.7rem;">EDITAR / STATUS</button>
-                  <button onclick="remover(${i})" style="border:none; background:#eee; border-radius:8px; padding:8px 12px; cursor:pointer;">🗑️</button>
+        <div id="formArea" style="display:none; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <h2 id="formTitle" style="color: var(--rosa-escuro); margin-bottom: 25px; font-weight: 800;">✨ Cadastrar Peça</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label style="font-size: 0.8rem; font-weight: 600;">Descrição</label>
+                    <input type="text" id="descricao" placeholder="Ex: Vestido Floral">
                 </div>
-              </div>
-            </div>`;
+                <div class="input-group">
+                    <label style="font-size: 0.8rem; font-weight: 600;">Fornecedora</label>
+                    <input type="text" id="fornecedor" placeholder="Nome dela">
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 0.8rem; font-weight: 600;">Valor (R$)</label>
+                    <input type="number" id="preco" placeholder="0.00">
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 0.8rem; font-weight: 600;">Status Inicial</label>
+                    <select id="status">
+                        <option value="Disponível">Disponível</option>
+                        <option value="Em Prova">Em Prova</option>
+                        <option value="Vendido">Vendido</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 5px;">Foto da Peça</label>
+                <input type="file" id="foto" accept="image/*">
+            </div>
+            <div style="margin-top: 30px; display: flex; gap: 15px;">
+                <button class="btn-acao btn-primary" onclick="salvar()" id="btnSalvar" style="flex: 2; padding: 15px;">ADICIONAR AO ACERVO</button>
+                <button class="btn-acao" onclick="toggleForm()" style="flex: 1; background: #f5f5f5;">Cancelar</button>
+            </div>
+        </div>
+
+        <div class="produtos-grid" id="lista"></div>
+    </main>
+
+    <button class="btn-add-fixo" onclick="toggleForm()" title="Cadastrar Peça">+</button>
+
+    <script>
+        if(!localStorage.getItem("usuarioLogado")) window.location.href = "login.html";
+        let editIdx = null;
+
+        function toggleForm() {
+            const f = document.getElementById("formArea");
+            const btn = document.querySelector(".btn-add-fixo");
+            
+            if(f.style.display === "none" || f.style.display === "") {
+                f.style.display = "block";
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            } else {
+                f.style.display = "none";
+                editIdx = null;
+                document.getElementById("descricao").value = "";
+                document.getElementById("preco").value = "";
+                document.getElementById("formTitle").textContent = "✨ Cadastrar Peça";
+            }
         }
-      });
-    }
 
-    function editar(i) {
-      const r = JSON.parse(localStorage.getItem("roupas"))[i];
-      document.getElementById("descricao").value = r.descricao;
-      document.getElementById("fornecedor").value = r.fornecedor;
-      document.getElementById("status").value = r.status;
-      editIdx = i;
-      document.getElementById("formTitle").textContent = "Alterar Peça";
-      document.getElementById("formArea").style.display = "block";
-      window.scrollTo(0,0);
-    }
+        async function salvar() {
+            const desc = document.getElementById("descricao").value;
+            const forn = document.getElementById("fornecedor").value;
+            const preco = document.getElementById("preco").value;
+            const status = document.getElementById("status").value;
+            const fotoFile = document.getElementById("foto").files[0];
 
-    function remover(i) {
-      if(confirm("Deseja realmente excluir esta peça do sistema?")) {
-        const r = JSON.parse(localStorage.getItem("roupas"));
-        r.splice(i, 1);
-        localStorage.setItem("roupas", JSON.stringify(r));
-        render();
-      }
-    }
+            if(!desc || !forn || !preco) return alert("Por favor, preencha a descrição, fornecedora e preço!");
 
-    window.onload = render;
-  </script>
+            let fotoBase64 = editIdx !== null ? (JSON.parse(localStorage.getItem("roupas"))[editIdx].foto) : "";
+            
+            if(fotoFile) {
+                fotoBase64 = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(fotoFile);
+                });
+            }
+
+            const roupas = JSON.parse(localStorage.getItem("roupas")) || [];
+            const novaPeca = { 
+                descricao: desc, 
+                fornecedor: forn, 
+                preco: preco, 
+                status: status, 
+                foto: fotoBase64,
+                data: new Date().toLocaleDateString()
+            };
+
+            if(editIdx !== null) roupas[editIdx] = novaPeca;
+            else roupas.push(novaPeca);
+
+            localStorage.setItem("roupas", JSON.stringify(roupas));
+            toggleForm();
+            render();
+        }
+
+        function render() {
+            const lista = document.getElementById("lista");
+            const roupas = JSON.parse(localStorage.getItem("roupas")) || [];
+            const filtroN = document.getElementById("bNome").value.toLowerCase();
+            const filtroF = document.getElementById("bForn").value.toLowerCase();
+            const filtroS = document.getElementById("fStatus").value;
+
+            lista.innerHTML = "";
+
+            roupas.forEach((r, i) => {
+                if(r.descricao.toLowerCase().includes(filtroN) && 
+                   r.fornecedor.toLowerCase().includes(filtroF) && 
+                   (filtroS === "" || r.status === filtroS)) {
+                    
+                    const statusClass = r.status === "Vendido" ? "tag-vendido" : (r.status === "Em Prova" ? "tag-prova" : "tag-disponivel");
+                    
+                    lista.innerHTML += `
+                        <div class="peca-card">
+                            <img src="${r.foto || 'https://via.placeholder.com/400x500?text=Constance'}" class="peca-image">
+                            <div class="peca-info">
+                                <span class="status-tag ${statusClass}">${r.status.toUpperCase()}</span>
+                                <h3 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">${r.descricao}</h3>
+                                <p style="font-size: 0.8rem; color: #999; margin-bottom: 15px;">📍 Fornecedora: ${r.fornecedor}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 1.3rem; font-weight: 800; color: var(--rosa-escuro);">R$ ${parseFloat(r.preco).toFixed(2)}</span>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button onclick="editar(${i})" style="background: none; border: 1px solid #ddd; padding: 8px; border-radius: 10px; cursor: pointer;">✏️</button>
+                                        <button onclick="remover(${i})" style="background: #fff5f5; border: none; padding: 8px; border-radius: 10px; cursor: pointer;">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+            });
+        }
+
+        function editar(i) {
+            const r = JSON.parse(localStorage.getItem("roupas"))[i];
+            document.getElementById("descricao").value = r.descricao;
+            document.getElementById("fornecedor").value = r.fornecedor;
+            document.getElementById("preco").value = r.preco;
+            document.getElementById("status").value = r.status;
+            editIdx = i;
+            document.getElementById("formTitle").textContent = "✏️ Editar Peça";
+            document.getElementById("formArea").style.display = "block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function remover(i) {
+            if(confirm("Deseja remover esta peça permanentemente?")) {
+                let r = JSON.parse(localStorage.getItem("roupas"));
+                r.splice(i, 1);
+                localStorage.setItem("roupas", JSON.stringify(r));
+                render();
+            }
+        }
+
+        window.onload = render;
+    </script>
 </body>
 </html>
